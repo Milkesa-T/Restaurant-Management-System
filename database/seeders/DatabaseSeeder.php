@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\DiningArea;
 use App\Models\Table;
 use App\Models\Setting;
+use App\Models\SlaThreshold;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\ItemVariant;
@@ -59,6 +60,57 @@ class DatabaseSeeder extends Seeder
                 'key' => $key,
                 'value' => $val,
             ]);
+        }
+
+        // 3b. Create SLA Thresholds
+        $slas = [
+            [
+                'from_status' => 'pending',
+                'to_status' => 'approved',
+                'target_seconds' => 120,
+                'warning_seconds' => 90,
+                'description' => 'Time window for a manager or waiter to approve a submitted order.',
+            ],
+            [
+                'from_status' => 'approved',
+                'to_status' => 'preparing',
+                'target_seconds' => 300,
+                'warning_seconds' => 180,
+                'description' => 'Time from order approval to preparation beginning in the kitchen.',
+            ],
+            [
+                'from_status' => 'preparing',
+                'to_status' => 'ready',
+                'target_seconds' => 900,
+                'warning_seconds' => 600,
+                'description' => 'Time required for chefs to prepare the items and mark ready.',
+            ],
+            [
+                'from_status' => 'ready',
+                'to_status' => 'served',
+                'target_seconds' => 180,
+                'warning_seconds' => 120,
+                'description' => 'Waiter pick-up and serving duration.',
+            ],
+            [
+                'from_status' => 'served',
+                'to_status' => 'paid',
+                'target_seconds' => 600,
+                'warning_seconds' => 300,
+                'description' => 'Payment collection window after serving.',
+            ],
+            [
+                'from_status' => 'pending',
+                'to_status' => 'served',
+                'target_seconds' => 1800,
+                'warning_seconds' => 1200,
+                'description' => 'Overall customer order lifecycle duration (Order to Served).',
+            ],
+        ];
+
+        foreach ($slas as $sla) {
+            $sla['branch_id'] = $branch->id;
+            SlaThreshold::create($sla);
         }
 
         // 4. Create Permissions

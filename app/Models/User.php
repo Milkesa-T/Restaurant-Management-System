@@ -69,4 +69,11 @@ class User extends Authenticatable
 
         return $this->role && $this->role->permissions->contains('slug', $permissionSlug);
     }
+
+    public function kitchenStations()
+    {
+        return $this->belongsToMany(KitchenStation::class, 'user_kitchen_stations', 'user_id', 'station_id')
+                    ->withPivot('is_primary', 'assigned_at')
+                    ->withTimestamps();
+    }
 }

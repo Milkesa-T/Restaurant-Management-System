@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('changed_by_user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('changed_by_role')->nullable();
             $table->timestamp('changed_at');
-            $table->integer('duration_seconds')->nullable();
+            $table->integer('duration_in_previous_status_sec')->nullable();
+            $table->integer('sla_threshold_sec')->nullable();
             $table->boolean('sla_breached')->default(false);
             $table->text('note')->nullable();
             $table->string('device_source')->nullable(); // customer_qr, waiter_app, kitchen_display, POS
@@ -25,6 +26,7 @@ return new class extends Migration
 
             $table->index(['order_id', 'to_status']);
             $table->index('changed_at');
+            $table->index(['order_id', 'changed_at'], 'idx_osl_order_changed');
         });
     }
 

@@ -31,6 +31,7 @@ return new class extends Migration
             // Analytic Timestamps
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('approved_at')->nullable();
+            $table->timestamp('sent_to_kitchen_at')->nullable();
             $table->timestamp('chef_started_at')->nullable();
             $table->timestamp('chef_completed_at')->nullable();
             $table->timestamp('waiter_picked_at')->nullable();
@@ -40,14 +41,6 @@ return new class extends Migration
             $table->timestamp('closed_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
-
-            // Cached analytical intervals (seconds)
-            $table->integer('duration_approval_seconds')->nullable();
-            $table->integer('duration_prep_seconds')->nullable();
-            $table->integer('duration_pickup_seconds')->nullable();
-            $table->integer('duration_delivery_seconds')->nullable();
-            $table->integer('duration_total_service_seconds')->nullable();
-            $table->integer('duration_total_lifecycle_seconds')->nullable();
 
             $table->timestamps();
         });

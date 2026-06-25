@@ -18,6 +18,8 @@ return new class extends Migration
             $table->timestamp('paid_at');
             $table->string('status')->default('completed'); // completed, refunded, failed
             $table->timestamps();
+
+            $table->index(['order_id', 'status']);
         });
     }
 
