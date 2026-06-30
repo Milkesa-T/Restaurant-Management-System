@@ -10,7 +10,11 @@ class Order extends Model
     use SoftDeletes;
 
     protected $fillable = [
+<<<<<<< Updated upstream
         'branch_id', 'table_id', 'original_table_id', 'dining_area_id',
+=======
+        'branch_id', 'table_id', 'original_table_id', 'dining_area_id', 'dining_session_id',
+>>>>>>> Stashed changes
         'order_number', 'source',
         'created_by_user_id', 'waiter_id', 'chef_id', 'cashier_id',
         'subtotal', 'discount_amount', 'tax_amount', 'service_charge', 'grand_total',
@@ -58,6 +62,14 @@ class Order extends Model
         return $this->belongsTo(Table::class);
     }
 
+<<<<<<< Updated upstream
+=======
+    public function diningSession()
+    {
+        return $this->belongsTo(DiningSession::class);
+    }
+
+>>>>>>> Stashed changes
     public function originalTable()
     {
         return $this->belongsTo(Table::class, 'original_table_id');

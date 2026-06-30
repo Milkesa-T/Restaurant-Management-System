@@ -231,6 +231,7 @@ class DatabaseSeeder extends Seeder
                 'name' => $u['name'],
                 'email' => $u['email'],
                 'password' => $defaultPassword,
+                'pin' => '1234', // Default testing PIN (automatically hashed by model cast)
                 'phone' => '+1 (555) ' . rand(100, 999) . '-' . rand(1000, 9999),
                 'status' => 'active',
             ]);

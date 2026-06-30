@@ -11,6 +11,10 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
+<<<<<<< Updated upstream
+=======
+            $table->foreignId('dining_session_id')->nullable()->constrained('dining_sessions')->onDelete('set null');
+>>>>>>> Stashed changes
 
             // Table & area placement
             $table->foreignId('table_id')->nullable()->constrained('tables')->onDelete('set null');
@@ -67,6 +71,10 @@ return new class extends Migration
             $table->softDeletes(); // deleted_at
 
             // Indexes
+<<<<<<< Updated upstream
+=======
+            $table->index('dining_session_id', 'idx_orders_dining_session');
+>>>>>>> Stashed changes
             $table->index('current_status', 'idx_orders_status');
             $table->index('payment_status', 'idx_orders_payment_status');
             $table->index('created_at',     'idx_orders_created_at');

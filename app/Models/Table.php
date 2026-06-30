@@ -17,4 +17,9 @@ class Table extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    public function diningSessions()
+    {
+        return $this->hasMany(DiningSession::class);
+    }
 }
