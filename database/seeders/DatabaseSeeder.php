@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\DiningArea;
 use App\Models\Table;
 use App\Models\Setting;
+use App\Models\SlaThreshold;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\ItemVariant;
@@ -20,6 +21,8 @@ use App\Models\InventoryItem;
 use App\Models\Recipe;
 use App\Models\ExpenseCategory;
 use App\Models\Supplier;
+use App\Models\KitchenStation;
+use App\Models\UserKitchenStation;
 
 class DatabaseSeeder extends Seeder
 {
@@ -59,6 +62,57 @@ class DatabaseSeeder extends Seeder
                 'key' => $key,
                 'value' => $val,
             ]);
+        }
+
+        // 3b. Create SLA Thresholds
+        $slas = [
+            [
+                'from_status' => 'pending',
+                'to_status' => 'approved',
+                'target_seconds' => 120,
+                'warning_seconds' => 90,
+                'description' => 'Time window for a manager or waiter to approve a submitted order.',
+            ],
+            [
+                'from_status' => 'approved',
+                'to_status' => 'preparing',
+                'target_seconds' => 300,
+                'warning_seconds' => 180,
+                'description' => 'Time from order approval to preparation beginning in the kitchen.',
+            ],
+            [
+                'from_status' => 'preparing',
+                'to_status' => 'ready',
+                'target_seconds' => 900,
+                'warning_seconds' => 600,
+                'description' => 'Time required for chefs to prepare the items and mark ready.',
+            ],
+            [
+                'from_status' => 'ready',
+                'to_status' => 'served',
+                'target_seconds' => 180,
+                'warning_seconds' => 120,
+                'description' => 'Waiter pick-up and serving duration.',
+            ],
+            [
+                'from_status' => 'served',
+                'to_status' => 'paid',
+                'target_seconds' => 600,
+                'warning_seconds' => 300,
+                'description' => 'Payment collection window after serving.',
+            ],
+            [
+                'from_status' => 'pending',
+                'to_status' => 'served',
+                'target_seconds' => 1800,
+                'warning_seconds' => 1200,
+                'description' => 'Overall customer order lifecycle duration (Order to Served).',
+            ],
+        ];
+
+        foreach ($slas as $sla) {
+            $sla['branch_id'] = $branch->id;
+            SlaThreshold::create($sla);
         }
 
         // 4. Create Permissions
@@ -167,6 +221,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Bob Manager', 'email' => 'manager@gourmethub.com', 'role_slug' => 'manager'],
             ['name' => 'Charlie Waiter', 'email' => 'waiter@gourmethub.com', 'role_slug' => 'waiter'],
             ['name' => 'David Chef', 'email' => 'chef@gourmethub.com', 'role_slug' => 'chef'],
+            ['name' => 'Hassan Chef', 'email' => 'hassan@gourmethub.com', 'role_slug' => 'chef'],
             ['name' => 'Emma Cashier', 'email' => 'cashier@gourmethub.com', 'role_slug' => 'cashier'],
             ['name' => 'Fred Storekeeper', 'email' => 'inventory@gourmethub.com', 'role_slug' => 'inventory-manager'],
             ['name' => 'Grace Accountant', 'email' => 'accountant@gourmethub.com', 'role_slug' => 'accountant'],
@@ -179,10 +234,47 @@ class DatabaseSeeder extends Seeder
                 'name' => $u['name'],
                 'email' => $u['email'],
                 'password' => $defaultPassword,
+                'pin' => '1234', // Default testing PIN (automatically hashed by model cast)
                 'phone' => '+1 (555) ' . rand(100, 999) . '-' . rand(1000, 9999),
                 'status' => 'active',
             ]);
         }
+
+        // 7b. Create Kitchen Stations (Kitchen Hubs)
+        $italianKitchen = KitchenStation::create([
+            'branch_id' => $branch->id,
+            'name' => 'Italian Kitchen',
+            'status' => 'active',
+        ]);
+
+        $ethiopianKitchen = KitchenStation::create([
+            'branch_id' => $branch->id,
+            'name' => 'Ethiopian Kitchen',
+            'status' => 'active',
+        ]);
+
+        // Associate Chefs with their respective approved kitchen stations
+        $managerUser = User::where('email', 'manager@gourmethub.com')->first();
+        $chefDavid = User::where('email', 'chef@gourmethub.com')->first();
+        $chefHassan = User::where('email', 'hassan@gourmethub.com')->first();
+
+        UserKitchenStation::create([
+            'user_id' => $chefDavid->id,
+            'station_id' => $italianKitchen->id,
+            'is_primary' => true,
+            'assigned_at' => now(),
+            'approved_by_user_id' => $managerUser->id,
+            'approved_at' => now(),
+        ]);
+
+        UserKitchenStation::create([
+            'user_id' => $chefHassan->id,
+            'station_id' => $ethiopianKitchen->id,
+            'is_primary' => true,
+            'assigned_at' => now(),
+            'approved_by_user_id' => $managerUser->id,
+            'approved_at' => now(),
+        ]);
 
         // 8. Create Dining Areas
         $groundArea = DiningArea::create([
@@ -239,78 +331,117 @@ class DatabaseSeeder extends Seeder
             // Appetizers
             [
                 'category_id' => $categories['Appetizers']->id,
+                'kitchen_station_id' => $italianKitchen->id,
                 'name' => 'Garlic Bread',
                 'description' => 'Toasted baguette slices with fresh garlic butter, parsley, and olive oil.',
                 'price' => 5.50,
                 'estimated_prep_time' => 8,
                 'availability_status' => 'available',
+                'status' => 'published',
             ],
             [
                 'category_id' => $categories['Appetizers']->id,
+                'kitchen_station_id' => $italianKitchen->id,
                 'name' => 'Bruschetta',
                 'description' => 'Grilled bread rubbed with garlic and topped with diced tomatoes, olive oil, basil, and salt.',
                 'price' => 6.50,
                 'estimated_prep_time' => 10,
                 'availability_status' => 'available',
+                'status' => 'published',
             ],
             // Mains
             [
                 'category_id' => $categories['Mains']->id,
+                'kitchen_station_id' => $italianKitchen->id,
                 'name' => 'Classic Beef Burger',
                 'description' => 'Succulent beef patty served in a toasted bun with lettuce, tomatoes, and custom burger sauce.',
                 'price' => 12.50,
                 'estimated_prep_time' => 12,
                 'availability_status' => 'available',
+                'status' => 'published',
             ],
             [
                 'category_id' => $categories['Mains']->id,
+                'kitchen_station_id' => $italianKitchen->id,
                 'name' => 'Margherita Pizza',
                 'description' => 'Classic sourdough pizza topped with fresh tomato sauce, mozzarella cheese, and fresh basil leaves.',
                 'price' => 11.00,
                 'estimated_prep_time' => 15,
                 'availability_status' => 'available',
+                'status' => 'published',
             ],
             [
                 'category_id' => $categories['Mains']->id,
+                'kitchen_station_id' => $italianKitchen->id,
                 'name' => 'Pasta Carbonara',
                 'description' => 'Creamy egg yolk and pecorino romano sauce tossed with fresh pasta and crispy pancetta.',
                 'price' => 14.00,
                 'estimated_prep_time' => 14,
                 'availability_status' => 'available',
+                'status' => 'published',
+            ],
+            // Ethiopian Mains (New)
+            [
+                'category_id' => $categories['Mains']->id,
+                'kitchen_station_id' => $ethiopianKitchen->id,
+                'name' => 'Shiro Wat',
+                'description' => 'Delicious chickpea powder stew cooked with onions, garlic, and spiced butter, served with Injera.',
+                'price' => 10.00,
+                'estimated_prep_time' => 10,
+                'availability_status' => 'available',
+                'status' => 'published',
+            ],
+            [
+                'category_id' => $categories['Mains']->id,
+                'kitchen_station_id' => $ethiopianKitchen->id,
+                'name' => 'Kitfo',
+                'description' => 'Minced raw beef marinated in mitmita (spiced chili powder) and niter kibbeh (clarified butter), served with Injera and Ayibe.',
+                'price' => 18.00,
+                'estimated_prep_time' => 25,
+                'availability_status' => 'available',
+                'status' => 'published',
             ],
             // Desserts
             [
                 'category_id' => $categories['Desserts']->id,
+                'kitchen_station_id' => $italianKitchen->id,
                 'name' => 'Tiramisu',
                 'description' => 'Classic Italian coffee-flavoured dessert made of ladyfingers dipped in coffee, layered with whipped mascarpone.',
                 'price' => 7.00,
                 'estimated_prep_time' => 5,
                 'availability_status' => 'available',
+                'status' => 'published',
             ],
             [
                 'category_id' => $categories['Desserts']->id,
+                'kitchen_station_id' => $italianKitchen->id,
                 'name' => 'Chocolate Fudge Cake',
                 'description' => 'Rich, warm chocolate cake with melting fudge frosting, served with vanilla ice cream.',
                 'price' => 6.50,
                 'estimated_prep_time' => 5,
                 'availability_status' => 'available',
+                'status' => 'published',
             ],
             // Drinks
             [
                 'category_id' => $categories['Drinks']->id,
+                'kitchen_station_id' => null, // Can be prepared anywhere / bar
                 'name' => 'Fresh Orange Juice',
                 'description' => 'Freshly squeezed sweet oranges, served chilled.',
                 'price' => 4.00,
                 'estimated_prep_time' => 3,
                 'availability_status' => 'available',
+                'status' => 'published',
             ],
             [
                 'category_id' => $categories['Drinks']->id,
+                'kitchen_station_id' => null,
                 'name' => 'Espresso',
                 'description' => 'Strong, rich espresso shot made of selected Arabica coffee beans.',
                 'price' => 3.00,
                 'estimated_prep_time' => 3,
                 'availability_status' => 'available',
+                'status' => 'published',
             ]
         ];
 

@@ -19,6 +19,12 @@ return new class extends Migration
             $table->decimal('total_price', 10, 2);
             $table->string('current_status')->default('pending_waiter_approval');
             $table->foreignId('chef_id')->nullable()->constrained('users')->onDelete('set null');
+            
+            // KDS pacing & timer tracking columns
+            $table->timestamp('scheduled_fire_at')->nullable();
+            $table->timestamp('cooking_started_at')->nullable();
+            $table->timestamp('cooking_completed_at')->nullable();
+            
             $table->timestamps();
         });
     }

@@ -20,10 +20,14 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('pin', 60)->nullable(); // 4-6 digit quick authorization PIN (hashed)
             $table->string('status')->default('active');
             $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
+
+            // Index
+            $table->index('pin', 'idx_users_pin');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
