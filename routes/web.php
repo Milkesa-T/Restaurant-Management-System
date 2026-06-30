@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\KitchenChefController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -13,6 +14,15 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
+
+Route::get('/kds', [KitchenChefController::class, 'kds'])->name('kds');
+Route::get('/chef', [KitchenChefController::class, 'chef'])->name('chef');
+Route::get('/customer', function () {
+    return Inertia::render('CustomerPortal');
+})->name('customer');
+Route::get('/staff', function () {
+    return Inertia::render('StaffPortal');
+})->name('staff');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
