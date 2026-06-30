@@ -22,6 +22,8 @@ export default {
                 "price-sm": ["JetBrains Mono", ...defaultTheme.fontFamily.mono],
                 "headline-lg": ["Inter", ...defaultTheme.fontFamily.sans],
                 "title-md": ["Inter", ...defaultTheme.fontFamily.sans]
+                sans: ['Inter', 'Figtree', ...defaultTheme.fontFamily.sans],
+                outfit: ['Outfit', 'sans-serif'],
             },
             colors: {
                 "tertiary-fixed-dim": "#fcba66",

@@ -43,10 +43,6 @@
     display: none;
 }
 .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
 /* Custom focus states for inputs */
 .custom-focus:focus {
     outline: none;
@@ -54,3 +50,20 @@
     box-shadow: 0 0 0 1px #004f35;
 }
 
+@layer base {
+    body {
+        font-family: 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+
+@layer utilities {
+    .font-outfit {
+        font-family: 'Outfit', sans-serif;
+    }
+}
