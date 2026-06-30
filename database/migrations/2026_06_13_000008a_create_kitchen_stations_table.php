@@ -24,6 +24,8 @@ return new class extends Migration
             $table->foreignId('station_id')->constrained('kitchen_stations')->onDelete('cascade');
             $table->boolean('is_primary')->default(true);
             $table->timestamp('assigned_at')->useCurrent();
+            $table->foreignId('approved_by_user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('approved_at')->nullable();
             $table->timestamps();
 
             $table->unique(['user_id', 'station_id']);

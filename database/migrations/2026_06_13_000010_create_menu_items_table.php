@@ -18,6 +18,14 @@ return new class extends Migration
             $table->string('image_path')->nullable();
             $table->integer('estimated_prep_time')->default(15); // in minutes
             $table->string('availability_status')->default('available');
+            
+            // Chef proposal & Admin approval flow
+            $table->string('status', 30)->default('published'); // proposed, approved, published
+            $table->foreignId('proposed_by_user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->decimal('proposed_price', 10, 2)->nullable();
+            $table->foreignId('approved_by_user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('approved_at')->nullable();
+            
             $table->timestamps();
         });
     }
