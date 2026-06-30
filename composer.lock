@@ -1133,7 +1133,7 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v13.15.0",
+            "version": "v11.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
@@ -6719,7 +6719,7 @@
             },
             "require": {
                 "laravel/agent-detector": "^2.0.2",
-                "php": "^8.3"
+                "php": "^8.2"
             },
             "conflict": {
                 "laravel/framework": "<12.0.0",
